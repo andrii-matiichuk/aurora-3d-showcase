@@ -21,8 +21,12 @@
   camera.position.set(0, 0, 9);
   camera.lookAt(0, 0, 0);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));   // cap at 2
+  // Device-adaptive quality: lighter on small screens and low-memory devices
+  const light = Math.min(window.innerWidth, window.innerHeight) < 768 ||
+                (navigator.deviceMemory || 4) <= 4;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !light, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, light ? 1.5 : 2));   // cap DPR
   renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
   renderer.setClearColor(0x000000, 0);                            // CSS provides bg
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -57,7 +61,7 @@
   scene.add(wire);
 
   // ---- Orbiting shards: ONE InstancedMesh (rule: InstancedMesh 50+) ----
-  const SHARDS = 60;
+  const SHARDS = light ? 36 : 60;
   const shardGeo = new THREE.OctahedronGeometry(0.16, 0);
   const shardMat = new THREE.MeshStandardMaterial({ color: 0xFBBF24, metalness: 0.4, roughness: 0.4 });
   const shards = new THREE.InstancedMesh(shardGeo, shardMat, SHARDS);
@@ -76,7 +80,7 @@
   scene.add(shards);
 
   // ---- Particle field: Points + BufferGeometry (rule: Points not Meshes) ----
-  const P = 2500;
+  const P = light ? 1400 : 2500;
   const pGeo = new THREE.BufferGeometry();
   const pPos = new Float32Array(P * 3);
   for (let i = 0; i < P * 3; i++) pPos[i] = (Math.random() - 0.5) * 34;

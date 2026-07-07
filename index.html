@@ -9,6 +9,7 @@
 <!-- Fonts: Tech Startup pairing (ui-ux-pro-max/typography) — Space Grotesk + DM Sans -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
 <!-- Styles -->
@@ -125,14 +126,37 @@
   </footer>
 </div>
 
-<!-- Libraries: pinned versions per ui-ux-pro-max/threejs guidance -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<!-- Adaptive loader: download in parallel, run in order (script.async = false).
+     The heavy 3D stack (Three.js + GSAP ≈ 670 KB) loads only when the network
+     and device can afford it; otherwise the CSS gradient background stays and
+     the page still works. This keeps first load fast on any connection. -->
+<script>
+(function () {
+  var conn = navigator.connection || navigator.webkitConnection || {};
+  var effType = conn.effectiveType || '';
+  var slowNet = conn.saveData === true || effType === 'slow-2g' || effType === '2g';
+  var lowEnd = (navigator.deviceMemory && navigator.deviceMemory <= 2) ||
+               (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2);
 
-<!-- App scripts (load order matters: i18n → scene → ui) -->
-<script src="js/i18n.js"></script>
-<script src="js/scene.js"></script>
-<script src="js/ui.js"></script>
+  function load(src) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.async = false;   // parallel download, ordered execution
+    document.head.appendChild(s);
+  }
+
+  load('js/i18n.js');  // tiny, local, always
+
+  // Load the heavy 3D libraries only on capable network + device.
+  if (!slowNet && !lowEnd) {
+    load('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
+    load('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js');
+    load('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js');
+    load('js/scene.js');
+  }
+
+  load('js/ui.js');    // degrades gracefully when GSAP is absent
+})();
+</script>
 </body>
 </html>
