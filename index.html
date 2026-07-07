@@ -141,8 +141,9 @@
   var conn = navigator.connection || navigator.webkitConnection || {};
   var effType = conn.effectiveType || '';
   var slowNet = conn.saveData === true || effType === 'slow-2g' || effType === '2g';
-  var lowEnd = (navigator.deviceMemory && navigator.deviceMemory <= 2) ||
-               (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2);
+  // Note: no device-memory/core gate here. Mid-range phones report low values
+  // but can still run the scene at reduced quality (see `light` in scene.js);
+  // skipping it left them with a blank background.
 
   // Flag touch devices (phones + tablets, incl. iPadOS in desktop mode) so CSS
   // and JS can enable the touch field where media queries alone are unreliable.
@@ -160,8 +161,8 @@
 
   load('js/i18n.js');  // tiny, local, always
 
-  // Load the heavy 3D libraries only on capable network + device.
-  if (!slowNet && !lowEnd) {
+  // Load the heavy 3D libraries unless the network is genuinely slow / Save-Data.
+  if (!slowNet) {
     load('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
     load('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js');
     load('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js');

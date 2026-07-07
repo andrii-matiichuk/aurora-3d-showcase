@@ -139,9 +139,14 @@
   window.addEventListener('pointercancel', dragEnd);
 
   // ---- Resize: ResizeObserver on canvas (rule: canvas dims, not window) ----
+  let lastW = 0, lastH = 0;
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     if (w === 0 || h === 0) return;
+    // Ignore tiny height changes from the mobile URL bar showing/hiding —
+    // resizing the WebGL buffer on every scroll frame causes iOS jank.
+    if (w === lastW && Math.abs(h - lastH) < 120) return;
+    lastW = w; lastH = h;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();

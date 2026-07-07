@@ -34,11 +34,12 @@ body {
 /* ---- WebGL canvas: fixed, behind everything (alpha:true + CSS bg) ---- */
 #scene {
   position: fixed; inset: 0;
-  width: 100vw; height: 100vh; height: 100dvh;   /* vh fallback for old WebView */
+  width: 100vw; height: 100vh;   /* stable height: avoids resize thrash as the iOS toolbar hides */
   z-index: 0;
   display: block;
   cursor: grab;
   touch-action: auto;   /* full scroll + pinch-zoom on touch; mouse drag still orbits */
+  transform: translateZ(0);   /* own compositor layer -> smoother under scroll on iOS */
 }
 body.dragging, body.dragging * { cursor: grabbing !important; -webkit-user-select: none; user-select: none; }
 
