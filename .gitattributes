@@ -1,0 +1,5 @@
+# Normalize line endings across platforms (global collaboration)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.woff2 binary

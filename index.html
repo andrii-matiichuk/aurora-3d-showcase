@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="uk">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AURORA — Просторовий рушій дизайну</title>
-<meta name="description" content="Демо лендінг у стилі 3D + анімації: Three.js r128, GSAP ScrollTrigger, дизайн-система ui-ux-pro-max." />
+<title>AURORA — Spatial Design Engine</title>
+<meta name="description" content="A 3D + motion demo landing page: Three.js r128, GSAP ScrollTrigger, and the ui-ux-pro-max design system. Internationalized (EN/UK)." />
 
 <!-- Fonts: Tech Startup pairing (ui-ux-pro-max/typography) — Space Grotesk + DM Sans -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -54,6 +54,7 @@
     touch-action: none;   /* let drag rotate instead of scrolling the background */
   }
   body.dragging, body.dragging * { cursor: grabbing !important; user-select: none; }
+
   /* readable overlay gradient so text always meets 4.5:1 contrast */
   .veil {
     position: fixed; inset: 0; z-index: 1; pointer-events: none;
@@ -73,16 +74,27 @@
     border-bottom: 1px solid var(--line);
   }
   .nav-inner { display: flex; align-items: center; justify-content: space-between;
-    padding: var(--space-2) 0; }
+    padding: var(--space-2) 0; gap: var(--space-2); }
   .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-head);
     font-weight: 700; letter-spacing: 0.5px; font-size: 20px; }
   .brand .dot { width: 14px; height: 14px; border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, var(--primary-2), var(--primary));
     box-shadow: 0 0 18px var(--primary); }
   .nav-links { display: flex; gap: var(--space-3); align-items: center; }
-  .nav-links a { color: var(--muted); text-decoration: none; font-size: 15px;
+  .nav-links a:not(.btn) { color: var(--muted); text-decoration: none; font-size: 15px;
     transition: color .2s var(--ease-out); }
-  .nav-links a:hover { color: var(--text); }
+  .nav-links a:not(.btn):hover { color: var(--text); }
+
+  /* language switcher (segmented control) */
+  .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+  .lang button { background: transparent; color: var(--muted); border: none;
+    font-family: var(--font-head); font-weight: 600; font-size: 13px; letter-spacing: .5px;
+    padding: 8px 13px; min-height: 38px; cursor: pointer;
+    transition: background .2s var(--ease-out), color .2s var(--ease-out); }
+  .lang button[aria-pressed="true"] { background: var(--primary); color: #fff; }
+  .lang button:hover[aria-pressed="false"] { color: var(--text); }
+  .lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
   .btn {
     font-family: var(--font-head); font-weight: 600; font-size: 15px;
     border: none; border-radius: 999px; cursor: pointer;
@@ -181,7 +193,7 @@
   @media (max-width: 860px) {
     .bento { grid-template-columns: repeat(2, 1fr); }
     .card.lg, .card.sm, .card.md { grid-column: span 2; }
-    .nav-links a:not(.btn) { display: none; }
+    .nav-links a:not(.btn) { display: none; }   /* keep language switcher + CTA visible */
     .stats { gap: var(--space-4); }
   }
 
@@ -195,8 +207,8 @@
 </head>
 <body>
 
-<!-- 3D background -->
-<canvas id="scene" role="img" aria-label="Інтерактивна 3D-сцена: обертовий кристал у полі частинок. Затисніть і перетягніть, щоб обертати сцену."></canvas>
+<!-- 3D background. aria-label is localized in JS (see i18n) -->
+<canvas id="scene" role="img" aria-label="Interactive 3D scene: a rotating crystal in a particle field. Click and drag to orbit the scene."></canvas>
 <div class="veil"></div>
 
 <div class="wrap">
@@ -204,9 +216,13 @@
     <div class="container nav-inner">
       <div class="brand"><span class="dot"></span> AURORA</div>
       <nav class="nav-links">
-        <a href="#features">Можливості</a>
-        <a href="#how">Як це працює</a>
-        <a class="btn btn-primary" href="#start" data-magnetic>Почати</a>
+        <a href="#features" data-i18n="nav.features">Features</a>
+        <a href="#start" data-i18n="nav.how">How it works</a>
+        <div class="lang" role="group" aria-label="Select language">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="uk" aria-pressed="false">UK</button>
+        </div>
+        <a class="btn btn-primary" href="#start" data-magnetic data-i18n="nav.start">Get started</a>
       </nav>
     </div>
   </header>
@@ -216,17 +232,17 @@
     <section class="hero">
       <div class="container">
         <span class="badge reveal"><span class="pulse"></span> Three.js r128 · GSAP · ui-ux-pro-max</span>
-        <h1 class="title reveal">Дизайн, що<br><span class="grad">живе у просторі</span></h1>
-        <p class="subtitle reveal">AURORA — просторовий рушій, що поєднує WebGL-графіку, фізичні анімації та строгу дизайн-систему. Рух передає сенс, а не прикрашає.</p>
+        <h1 class="title reveal"><span data-i18n="hero.title1">Design that</span><br><span class="grad" data-i18n="hero.title2">lives in space</span></h1>
+        <p class="subtitle reveal" data-i18n="hero.subtitle">AURORA is a spatial engine that blends WebGL graphics, physics-based motion and a strict design system. Motion conveys meaning — it never just decorates.</p>
         <div class="cta-row reveal">
-          <a class="btn btn-primary" href="#start" data-magnetic>Спробувати безкоштовно →</a>
-          <a class="btn btn-ghost" href="#features">Дивитись можливості</a>
+          <a class="btn btn-primary" href="#start" data-magnetic data-i18n="hero.ctaPrimary">Try it free →</a>
+          <a class="btn btn-ghost" href="#features" data-i18n="hero.ctaGhost">Explore features</a>
         </div>
 
         <div class="stats reveal">
-          <div class="stat"><div class="num" data-count="60">0</div><div class="lbl">кадрів/с на сцені</div></div>
-          <div class="stat"><div class="num" data-count="2500">0</div><div class="lbl">частинок у полі</div></div>
-          <div class="stat"><div class="num" data-count="99">0</div><div class="lbl">UX-правил ураховано</div></div>
+          <div class="stat"><div class="num" data-count="60">0</div><div class="lbl" data-i18n="stat.fps">frames per second</div></div>
+          <div class="stat"><div class="num" data-count="2500">0</div><div class="lbl" data-i18n="stat.particles">particles in the field</div></div>
+          <div class="stat"><div class="num" data-count="99">0</div><div class="lbl" data-i18n="stat.rules">UX rules applied</div></div>
         </div>
       </div>
     </section>
@@ -235,43 +251,43 @@
     <section class="features" id="features">
       <div class="container">
         <div class="sec-head reveal">
-          <h2>Побудовано на принципах, а не на прикрасах</h2>
-          <p>Кожна анімація триває 150–400 мс, працює лише через transform/opacity і поважає prefers-reduced-motion.</p>
+          <h2 data-i18n="feat.head">Built on principles, not decoration</h2>
+          <p data-i18n="feat.sub">Every animation runs 150–400 ms, uses only transform/opacity, and respects prefers-reduced-motion.</p>
         </div>
 
         <div class="bento">
           <article class="card lg reveal" data-tilt>
             <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
-            <h3>WebGL-рушій реального часу</h3>
-            <p>Один WebGLRenderer на всю сторінку, pixel ratio з обмеженням ×2, InstancedMesh для повторюваних об'єктів і delta-time через THREE.Clock — стабільні 60 fps навіть на середніх пристроях.</p>
+            <h3 data-i18n="card1.h">Real-time WebGL engine</h3>
+            <p data-i18n="card1.p">One WebGLRenderer per page, pixel ratio capped at ×2, InstancedMesh for repeated objects and delta-time via THREE.Clock — a steady 60 fps even on mid-range devices.</p>
             <span class="tag">THREE.JS R128</span>
           </article>
 
           <article class="card sm reveal" data-tilt>
             <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z"/></svg></div>
-            <h3>Фізичні анімації</h3>
-            <p>Spring-криві та scrub-таймлайни GSAP замість лінійних переходів.</p>
+            <h3 data-i18n="card2.h">Physics-based motion</h3>
+            <p data-i18n="card2.p">GSAP spring curves and scrub timelines instead of linear transitions.</p>
             <span class="tag">GSAP 3.12</span>
           </article>
 
           <article class="card sm reveal" data-tilt>
             <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-            <h3>Плавний паралакс</h3>
-            <p>Камера слідує за курсором через lerp — без ривків і дезорієнтації.</p>
-            <span class="tag">LERP α=0.05</span>
+            <h3 data-i18n="card3.h">Smooth orbit control</h3>
+            <p data-i18n="card3.p">Click and drag to rotate the scene in spherical coordinates, with release inertia.</p>
+            <span class="tag">DRAG ORBIT</span>
           </article>
 
           <article class="card md reveal" data-tilt>
             <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
-            <h3>Доступність за замовчуванням</h3>
-            <p>Контраст тексту ≥4.5:1, aria-label на canvas, повна підтримка prefers-reduced-motion з реактивним слухачем зміни налаштувань ОС.</p>
+            <h3 data-i18n="card4.h">Accessible by default</h3>
+            <p data-i18n="card4.p">Text contrast ≥4.5:1, an aria-label on the canvas, and full prefers-reduced-motion support with a reactive listener for OS setting changes.</p>
             <span class="tag">WCAG AA</span>
           </article>
 
           <article class="card md reveal" data-tilt>
             <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
-            <h3>Дизайн-система в токенах</h3>
-            <p>Семантичні CSS-змінні, шкала відступів 8px, пара шрифтів Space Grotesk × DM Sans і палітра Web3 — усе з ui-ux-pro-max.</p>
+            <h3 data-i18n="card5.h">Design system in tokens</h3>
+            <p data-i18n="card5.p">Semantic CSS variables, an 8px spacing scale, the Space Grotesk × DM Sans pairing and a Web3 palette — all from ui-ux-pro-max.</p>
             <span class="tag">DESIGN TOKENS</span>
           </article>
         </div>
@@ -282,11 +298,11 @@
     <section class="cta" id="start">
       <div class="container">
         <div class="cta-box reveal">
-          <h2>Готові рухати простір?</h2>
-          <p>Це демо зібране за рекомендаціями скіла ui-ux-pro-max — від вибору палітри до правил анімації. Відкрийте вихідний код і подивіться, як воно влаштоване.</p>
+          <h2 data-i18n="ctaBand.h">Ready to move space?</h2>
+          <p data-i18n="ctaBand.p">This demo is built on ui-ux-pro-max recommendations — from palette choice to motion rules. Open the source and see how it works.</p>
           <div class="cta-row" style="justify-content:center">
-            <a class="btn btn-primary" href="#" data-magnetic>Створити проєкт →</a>
-            <a class="btn btn-ghost" href="#features">Назад до можливостей</a>
+            <a class="btn btn-primary" href="#" data-magnetic data-i18n="ctaBand.primary">Create a project →</a>
+            <a class="btn btn-ghost" href="#features" data-i18n="ctaBand.ghost">Back to features</a>
           </div>
         </div>
       </div>
@@ -295,7 +311,7 @@
 
   <footer>
     <div class="container foot-inner">
-      <div>© AURORA — демо у стилі 3D + анімації</div>
+      <div data-i18n="footer.left">© AURORA — a 3D + motion demo</div>
       <div>Three.js r128 · GSAP · ui-ux-pro-max v2.6.2</div>
     </div>
   </footer>
@@ -306,12 +322,125 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
+<!-- =====================================================================
+     i18n — English is the global default; Ukrainian is available.
+     Add a new language by dropping another entry into STRINGS + LOCALES.
+     Text is authored in the HTML (English) so the page works without JS.
+     ===================================================================== -->
+<script>
+window.Aurora = (function () {
+  const STRINGS = {
+    en: {
+      'nav.features': 'Features',
+      'nav.how': 'How it works',
+      'nav.start': 'Get started',
+      'hero.title1': 'Design that',
+      'hero.title2': 'lives in space',
+      'hero.subtitle': 'AURORA is a spatial engine that blends WebGL graphics, physics-based motion and a strict design system. Motion conveys meaning — it never just decorates.',
+      'hero.ctaPrimary': 'Try it free →',
+      'hero.ctaGhost': 'Explore features',
+      'stat.fps': 'frames per second',
+      'stat.particles': 'particles in the field',
+      'stat.rules': 'UX rules applied',
+      'feat.head': 'Built on principles, not decoration',
+      'feat.sub': 'Every animation runs 150–400 ms, uses only transform/opacity, and respects prefers-reduced-motion.',
+      'card1.h': 'Real-time WebGL engine',
+      'card1.p': 'One WebGLRenderer per page, pixel ratio capped at ×2, InstancedMesh for repeated objects and delta-time via THREE.Clock — a steady 60 fps even on mid-range devices.',
+      'card2.h': 'Physics-based motion',
+      'card2.p': 'GSAP spring curves and scrub timelines instead of linear transitions.',
+      'card3.h': 'Smooth orbit control',
+      'card3.p': 'Click and drag to rotate the scene in spherical coordinates, with release inertia.',
+      'card4.h': 'Accessible by default',
+      'card4.p': 'Text contrast ≥4.5:1, an aria-label on the canvas, and full prefers-reduced-motion support with a reactive listener for OS setting changes.',
+      'card5.h': 'Design system in tokens',
+      'card5.p': 'Semantic CSS variables, an 8px spacing scale, the Space Grotesk × DM Sans pairing and a Web3 palette — all from ui-ux-pro-max.',
+      'ctaBand.h': 'Ready to move space?',
+      'ctaBand.p': 'This demo is built on ui-ux-pro-max recommendations — from palette choice to motion rules. Open the source and see how it works.',
+      'ctaBand.primary': 'Create a project →',
+      'ctaBand.ghost': 'Back to features',
+      'footer.left': '© AURORA — a 3D + motion demo',
+      'canvas.aria': 'Interactive 3D scene: a rotating crystal in a particle field. Click and drag to orbit the scene.'
+    },
+    uk: {
+      'nav.features': 'Можливості',
+      'nav.how': 'Як це працює',
+      'nav.start': 'Почати',
+      'hero.title1': 'Дизайн, що',
+      'hero.title2': 'живе у просторі',
+      'hero.subtitle': 'AURORA — просторовий рушій, що поєднує WebGL-графіку, фізичні анімації та строгу дизайн-систему. Рух передає сенс, а не прикрашає.',
+      'hero.ctaPrimary': 'Спробувати безкоштовно →',
+      'hero.ctaGhost': 'Дивитись можливості',
+      'stat.fps': 'кадрів/с на сцені',
+      'stat.particles': 'частинок у полі',
+      'stat.rules': 'UX-правил ураховано',
+      'feat.head': 'Побудовано на принципах, а не на прикрасах',
+      'feat.sub': 'Кожна анімація триває 150–400 мс, працює лише через transform/opacity і поважає prefers-reduced-motion.',
+      'card1.h': 'WebGL-рушій реального часу',
+      'card1.p': 'Один WebGLRenderer на всю сторінку, pixel ratio з обмеженням ×2, InstancedMesh для повторюваних об’єктів і delta-time через THREE.Clock — стабільні 60 fps навіть на середніх пристроях.',
+      'card2.h': 'Фізичні анімації',
+      'card2.p': 'Spring-криві та scrub-таймлайни GSAP замість лінійних переходів.',
+      'card3.h': 'Плавне обертання',
+      'card3.p': 'Затисни й тягни, щоб обертати сцену у сферичних координатах, з інерцією після відпускання.',
+      'card4.h': 'Доступність за замовчуванням',
+      'card4.p': 'Контраст тексту ≥4.5:1, aria-label на canvas і повна підтримка prefers-reduced-motion з реактивним слухачем зміни налаштувань ОС.',
+      'card5.h': 'Дизайн-система в токенах',
+      'card5.p': 'Семантичні CSS-змінні, шкала відступів 8px, пара шрифтів Space Grotesk × DM Sans і палітра Web3 — усе з ui-ux-pro-max.',
+      'ctaBand.h': 'Готові рухати простір?',
+      'ctaBand.p': 'Це демо зібране за рекомендаціями скіла ui-ux-pro-max — від вибору палітри до правил анімації. Відкрийте вихідний код і подивіться, як воно влаштоване.',
+      'ctaBand.primary': 'Створити проєкт →',
+      'ctaBand.ghost': 'Назад до можливостей',
+      'footer.left': '© AURORA — демо у стилі 3D + анімації',
+      'canvas.aria': 'Інтерактивна 3D-сцена: обертовий кристал у полі частинок. Затисніть і перетягніть, щоб обертати сцену.'
+    }
+  };
+  const LOCALES = { en: 'en-US', uk: 'uk-UA' };
+  const STORE_KEY = 'aurora-lang';
+  let lang = 'en';
+
+  const t = (key) => (STRINGS[lang] && STRINGS[lang][key]) || STRINGS.en[key] || '';
+  const numberLocale = () => LOCALES[lang] || 'en-US';
+
+  function apply(next) {
+    lang = STRINGS[next] ? next : 'en';
+    document.documentElement.lang = lang;
+    try { localStorage.setItem(STORE_KEY, lang); } catch (e) {}
+
+    document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+
+    const canvas = document.getElementById('scene');
+    if (canvas) canvas.setAttribute('aria-label', t('canvas.aria'));
+
+    // reformat any stat that already finished counting
+    document.querySelectorAll('[data-count]').forEach((el) => {
+      if (el.dataset.done === '1') el.textContent = Number(el.dataset.count).toLocaleString(numberLocale());
+    });
+
+    document.querySelectorAll('[data-lang]').forEach((b) => {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    });
+  }
+
+  function init() {
+    let saved = null;
+    try { saved = localStorage.getItem(STORE_KEY); } catch (e) {}
+    const browser = (navigator.language || 'en').slice(0, 2).toLowerCase();
+    apply(saved || (STRINGS[browser] ? browser : 'en'));
+    document.querySelectorAll('[data-lang]').forEach((b) => {
+      b.addEventListener('click', () => apply(b.dataset.lang));
+    });
+  }
+
+  init();
+  return { apply, numberLocale, get lang() { return lang; } };
+})();
+</script>
+
 <script>
 /* =====================================================================
    3D SCENE — follows ui-ux-pro-max/data/stacks/threejs.csv rules:
    single renderer · pixelRatio cap 2 · alpha canvas · ACES tone mapping
    · Clock delta once/frame · InstancedMesh · Points particles · fog
-   · reduced-motion reactive · pointer lerp · ResizeObserver
+   · drag-to-orbit (spherical) · reduced-motion reactive · ResizeObserver
    ===================================================================== */
 (function () {
   const canvas = document.getElementById('scene');
@@ -320,7 +449,7 @@
   // reduced-motion — reactive (rule: Accessibility/prefers-reduced-motion)
   const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
   let noMotion = mq.matches;
-  mq.addEventListener('change', e => { noMotion = e.matches; });
+  mq.addEventListener('change', (e) => { noMotion = e.matches; });
 
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x0F0F23, 0.035);
@@ -337,7 +466,7 @@
   renderer.toneMappingExposure = 1.05;
   renderer.outputEncoding = THREE.sRGBEncoding;
 
-  // Lights: ambient fill + directional key + accent point (rule: Ambient+Directional min)
+  // Lights: ambient fill + directional key + accent points (rule: Ambient+Directional min)
   scene.add(new THREE.AmbientLight(0xffffff, 0.55));
   const key = new THREE.DirectionalLight(0xffffff, 1.1);
   key.position.set(5, 8, 6);
@@ -349,7 +478,7 @@
   fill.position.set(6, 2, -2);
   scene.add(fill);
 
-  // ---- Hero crystal: icosahedron, PBR material (shared instances) ----
+  // ---- Hero crystal: icosahedron, PBR material ----
   const heroGeo = new THREE.IcosahedronGeometry(2.1, 0);
   const heroMat = new THREE.MeshStandardMaterial({
     color: 0x8B5CF6, metalness: 0.65, roughness: 0.25, flatShading: true
@@ -395,7 +524,6 @@
   scene.add(particles);
 
   // ---- Drag-to-orbit (rule: Custom Drag Orbit Fallback — spherical coords) ----
-  // Grab with the pointer/finger held down and drag to rotate the whole scene.
   let R = camera.position.length();     // orbit radius (also tweened in intro)
   let theta = 0;                        // azimuth  (horizontal drag)
   let phi   = Math.PI / 2;              // polar    (vertical drag), start at equator
@@ -425,12 +553,12 @@
   }
   function dragEnd() { dragging = false; document.body.classList.remove('dragging'); }
 
-  // Start a drag anywhere on the background, but not on real controls (links/buttons)
-  window.addEventListener('pointerdown', e => {
+  // Start a drag anywhere on the background, but not on real controls
+  window.addEventListener('pointerdown', (e) => {
     if (e.target.closest('a, button, [data-magnetic], input, .nav-links, .brand')) return;
     dragStart(e.clientX, e.clientY);
   });
-  window.addEventListener('pointermove', e => dragMove(e.clientX, e.clientY));
+  window.addEventListener('pointermove', (e) => dragMove(e.clientX, e.clientY));
   window.addEventListener('pointerup', dragEnd);
   window.addEventListener('pointercancel', dragEnd);
 
@@ -458,7 +586,6 @@
       wire.rotation.copy(hero.rotation);
       particles.rotation.y += dt * 0.02;
 
-      // orbit shards
       for (let i = 0; i < SHARDS; i++) {
         const s = shardData[i];
         s.a += dt * s.speed;
@@ -494,8 +621,7 @@
     const baseR = R;                 // resting radius (9)
     const intro = { r: baseR + 8 };  // start further out
     R = intro.r;
-    gsap.to(intro, { r: baseR, duration: 1.6, ease: 'power3.out',
-      onUpdate: () => { R = intro.r; } });
+    gsap.to(intro, { r: baseR, duration: 1.6, ease: 'power3.out', onUpdate: () => { R = intro.r; } });
     gsap.from([hero.scale], { x: 0.2, y: 0.2, z: 0.2, duration: 1.4, ease: 'back.out(1.4)' });
   }
 })();
@@ -503,54 +629,52 @@
 /* =====================================================================
    DOM ANIMATIONS — GSAP ScrollTrigger reveal + magnetic buttons + tilt
    Rules: 150-400ms · ease-out enter · stagger 30-80ms · reduced-motion
+   Numbers formatted per active locale (window.Aurora.numberLocale()).
    ===================================================================== */
 (function () {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const locale = () => (window.Aurora ? window.Aurora.numberLocale() : 'en-US');
 
-  // Reveal on scroll (fallback: IntersectionObserver if GSAP missing)
   const reveals = document.querySelectorAll('.reveal');
   if (reduce) {
-    reveals.forEach(el => el.classList.add('in'));
+    reveals.forEach((el) => el.classList.add('in'));
   } else if (window.gsap && window.ScrollTrigger) {
     gsap.registerPlugin(ScrollTrigger);
-    // hero group: quick stagger on load
     gsap.utils.toArray('.hero .reveal').forEach((el, i) => {
       gsap.to(el, { opacity: 1, y: 0, duration: 0.6, delay: 0.15 + i * 0.07, ease: 'power2.out',
         onStart: () => el.classList.add('in') });
     });
-    // scroll sections
-    gsap.utils.toArray('.reveal:not(.hero .reveal)').forEach(el => {
-      ScrollTrigger.create({
-        trigger: el, start: 'top 88%', once: true,
-        onEnter: () => el.classList.add('in')
-      });
+    gsap.utils.toArray('.reveal:not(.hero .reveal)').forEach((el) => {
+      ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true, onEnter: () => el.classList.add('in') });
     });
   } else {
     const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { threshold: 0.15 });
-    reveals.forEach(el => io.observe(el));
+    reveals.forEach((el) => io.observe(el));
   }
 
-  // Count-up stats
-  document.querySelectorAll('[data-count]').forEach(el => {
-    const target = +el.dataset.count;
-    if (reduce || !window.gsap) { el.textContent = target.toLocaleString('uk'); return; }
+  // Count-up stats (locale-aware, re-formatted on language switch)
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    const target = Number(el.dataset.count);
+    const done = () => { el.textContent = target.toLocaleString(locale()); el.dataset.done = '1'; };
+    if (reduce || !window.gsap) { done(); return; }
     const obj = { v: 0 };
     ScrollTrigger.create({
       trigger: el, start: 'top 92%', once: true,
       onEnter: () => gsap.to(obj, { v: target, duration: 1.4, ease: 'power2.out',
-        onUpdate: () => { el.textContent = Math.round(obj.v).toLocaleString('uk'); } })
+        onUpdate: () => { el.textContent = Math.round(obj.v).toLocaleString(locale()); },
+        onComplete: () => { el.dataset.done = '1'; } })
     });
   });
 
   if (reduce) return;
 
   // Magnetic buttons (rule: Complex hover — clamp pull, 1-2 focal elements)
-  document.querySelectorAll('[data-magnetic]').forEach(el => {
+  document.querySelectorAll('[data-magnetic]').forEach((el) => {
     const xTo = gsap.quickTo(el, 'x', { duration: 0.4, ease: 'elastic.out(1,0.4)' });
     const yTo = gsap.quickTo(el, 'y', { duration: 0.4, ease: 'elastic.out(1,0.4)' });
-    el.addEventListener('pointermove', e => {
+    el.addEventListener('pointermove', (e) => {
       const r = el.getBoundingClientRect();
       xTo((e.clientX - r.left - r.width / 2) * 0.35);
       yTo((e.clientY - r.top - r.height / 2) * 0.35);
@@ -559,8 +683,8 @@
   });
 
   // Card spotlight follow (updates CSS vars only — cheap)
-  document.querySelectorAll('[data-tilt]').forEach(card => {
-    card.addEventListener('pointermove', e => {
+  document.querySelectorAll('[data-tilt]').forEach((card) => {
+    card.addEventListener('pointermove', (e) => {
       const r = card.getBoundingClientRect();
       card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
       card.style.setProperty('--my', (e.clientY - r.top) + 'px');
