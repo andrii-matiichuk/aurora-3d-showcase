@@ -221,6 +221,7 @@
         <div class="lang" role="group" aria-label="Select language">
           <button type="button" data-lang="en" aria-pressed="true">EN</button>
           <button type="button" data-lang="uk" aria-pressed="false">UK</button>
+          <button type="button" data-lang="es" aria-pressed="false">ES</button>
         </div>
         <a class="btn btn-primary" href="#start" data-magnetic data-i18n="nav.start">Get started</a>
       </nav>
@@ -391,9 +392,40 @@ window.Aurora = (function () {
       'ctaBand.ghost': 'Назад до можливостей',
       'footer.left': '© AURORA — демо у стилі 3D + анімації',
       'canvas.aria': 'Інтерактивна 3D-сцена: обертовий кристал у полі частинок. Затисніть і перетягніть, щоб обертати сцену.'
+    },
+    es: {
+      'nav.features': 'Funciones',
+      'nav.how': 'Cómo funciona',
+      'nav.start': 'Empezar',
+      'hero.title1': 'Diseño que',
+      'hero.title2': 'vive en el espacio',
+      'hero.subtitle': 'AURORA es un motor espacial que combina gráficos WebGL, movimiento basado en física y un sistema de diseño estricto. El movimiento transmite significado — nunca solo decora.',
+      'hero.ctaPrimary': 'Pruébalo gratis →',
+      'hero.ctaGhost': 'Ver funciones',
+      'stat.fps': 'fotogramas por segundo',
+      'stat.particles': 'partículas en el campo',
+      'stat.rules': 'reglas de UX aplicadas',
+      'feat.head': 'Construido sobre principios, no decoración',
+      'feat.sub': 'Cada animación dura 150–400 ms, usa solo transform/opacity y respeta prefers-reduced-motion.',
+      'card1.h': 'Motor WebGL en tiempo real',
+      'card1.p': 'Un solo WebGLRenderer por página, pixel ratio limitado a ×2, InstancedMesh para objetos repetidos y delta-time con THREE.Clock — 60 fps estables incluso en dispositivos de gama media.',
+      'card2.h': 'Movimiento basado en física',
+      'card2.p': 'Curvas de resorte y líneas de tiempo con scrub de GSAP en lugar de transiciones lineales.',
+      'card3.h': 'Control de órbita suave',
+      'card3.p': 'Haz clic y arrastra para rotar la escena en coordenadas esféricas, con inercia al soltar.',
+      'card4.h': 'Accesible por defecto',
+      'card4.p': 'Contraste de texto ≥4.5:1, un aria-label en el canvas y soporte completo de prefers-reduced-motion con un listener reactivo a los cambios del sistema.',
+      'card5.h': 'Sistema de diseño en tokens',
+      'card5.p': 'Variables CSS semánticas, una escala de espaciado de 8px, la combinación Space Grotesk × DM Sans y una paleta Web3 — todo de ui-ux-pro-max.',
+      'ctaBand.h': '¿Listo para mover el espacio?',
+      'ctaBand.p': 'Esta demo está construida sobre las recomendaciones de ui-ux-pro-max — desde la elección de la paleta hasta las reglas de movimiento. Abre el código fuente y mira cómo funciona.',
+      'ctaBand.primary': 'Crear un proyecto →',
+      'ctaBand.ghost': 'Volver a funciones',
+      'footer.left': '© AURORA — una demo de 3D + movimiento',
+      'canvas.aria': 'Escena 3D interactiva: un cristal giratorio en un campo de partículas. Haz clic y arrastra para orbitar la escena.'
     }
   };
-  const LOCALES = { en: 'en-US', uk: 'uk-UA' };
+  const LOCALES = { en: 'en-US', uk: 'uk-UA', es: 'es-ES' };
   const STORE_KEY = 'aurora-lang';
   let lang = 'en';
 
@@ -553,9 +585,13 @@ window.Aurora = (function () {
   }
   function dragEnd() { dragging = false; document.body.classList.remove('dragging'); }
 
-  // Start a drag anywhere on the background, but not on real controls
+  // Orbit only when the press lands on the background/scene — never on text or
+  // controls, so users can still select and copy any copy on the page.
+  const NO_DRAG = 'a, button, input, textarea, select, label, .lang,' +
+    ' p, h1, h2, h3, h4, span, li, .tag, .lbl, .num, .badge, .brand, footer';
   window.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('a, button, [data-magnetic], input, .nav-links, .brand')) return;
+    if (e.button !== undefined && e.button !== 0) return;   // primary button / touch only
+    if (e.target.closest(NO_DRAG)) return;                  // let selection happen on text
     dragStart(e.clientX, e.clientY);
   });
   window.addEventListener('pointermove', (e) => dragMove(e.clientX, e.clientY));
