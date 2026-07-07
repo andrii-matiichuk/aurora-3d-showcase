@@ -21,9 +21,13 @@
   camera.position.set(0, 0, 9);
   camera.lookAt(0, 0, 0);
 
-  // Device-adaptive quality: lighter on small screens and low-memory devices
-  const light = Math.min(window.innerWidth, window.innerHeight) < 768 ||
-                (navigator.deviceMemory || 4) <= 4;
+  // Device-adaptive quality: lighter on touch devices (phones/tablets), small
+  // screens, and low-memory hardware — smoother on Android, iOS and tablets.
+  const touchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches ||
+                      (navigator.maxTouchPoints || 0) > 1;
+  const light = touchDevice ||
+                Math.min(window.innerWidth, window.innerHeight) < 768 ||
+                (navigator.deviceMemory && navigator.deviceMemory <= 4);
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !light, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, light ? 1.5 : 2));   // cap DPR
@@ -125,7 +129,8 @@
   const NO_DRAG = 'a, button, input, textarea, select, label, .lang,' +
     ' p, h1, h2, h3, h4, span, li, .tag, .lbl, .num, .badge, .brand, footer, .touchzone';
   window.addEventListener('pointerdown', (e) => {
-    if (e.button !== undefined && e.button !== 0) return;   // primary button / touch only
+    if (e.pointerType === 'touch') return;                  // touch scrolls; mouse/pen orbit
+    if (e.button !== undefined && e.button !== 0) return;   // primary button only
     if (e.target.closest(NO_DRAG)) return;                  // let selection happen on text
     dragStart(e.clientX, e.clientY);
   });

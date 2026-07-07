@@ -9,7 +9,7 @@
   const canvas = document.getElementById('touch-fx');
   if (!canvas) return;
 
-  const mqMobile = window.matchMedia('(max-width: 860px)');
+  const isTouch = () => document.documentElement.classList.contains('is-touch');
   const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   const ctx = canvas.getContext('2d');
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -100,7 +100,7 @@
   }
 
   function start() {
-    if (raf || !mqMobile.matches || W === 0) return;
+    if (raf || !isTouch() || W === 0) return;
     if (mqReduce.matches) { drawStatic(); return; }
     frame();
   }
@@ -123,7 +123,7 @@
 
   // ---- Lifecycle: build on demand, pause when off-screen / hidden / desktop ----
   function refresh() {
-    if (!mqMobile.matches) { stop(); return; }
+    if (!isTouch()) { stop(); return; }
     build();
     if (mqReduce.matches) { drawStatic(); return; }
     if (onScreen) start();
@@ -139,7 +139,7 @@
   }
 
   window.addEventListener('resize', refresh);
-  mqMobile.addEventListener('change', refresh);
+  window.addEventListener('orientationchange', refresh);
   mqReduce.addEventListener('change', refresh);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stop(); else if (onScreen) start();

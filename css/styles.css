@@ -19,7 +19,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   margin: 0;
   font-family: var(--font-body);
@@ -28,18 +28,19 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;   /* no grey flash on tap (iOS/Android) */
 }
 
 /* ---- WebGL canvas: fixed, behind everything (alpha:true + CSS bg) ---- */
 #scene {
   position: fixed; inset: 0;
-  width: 100vw; height: 100dvh;
+  width: 100vw; height: 100vh; height: 100dvh;   /* vh fallback for old WebView */
   z-index: 0;
   display: block;
   cursor: grab;
-  touch-action: none;   /* let drag rotate instead of scrolling the background */
+  touch-action: auto;   /* full scroll + pinch-zoom on touch; mouse drag still orbits */
 }
-body.dragging, body.dragging * { cursor: grabbing !important; user-select: none; }
+body.dragging, body.dragging * { cursor: grabbing !important; -webkit-user-select: none; user-select: none; }
 
 /* readable overlay gradient so text always meets 4.5:1 contrast */
 .veil {
@@ -55,9 +56,12 @@ body.dragging, body.dragging * { cursor: grabbing !important; user-select: none;
 /* ---- Nav ---- */
 header.nav {
   position: sticky; top: 0; z-index: 20;
+  -webkit-backdrop-filter: blur(10px);   /* iOS Safari needs the prefix */
   backdrop-filter: blur(10px);
   background: rgba(15,15,35,0.55);
   border-bottom: 1px solid var(--line);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 .nav-inner { display: flex; align-items: center; justify-content: space-between;
   padding: var(--space-2) 0; gap: var(--space-2); }
@@ -97,7 +101,7 @@ header.nav {
 a.btn { text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
 
 /* ---- Hero ---- */
-.hero { min-height: 100dvh; display: flex; align-items: center; padding: var(--space-12) 0 var(--space-8); }
+.hero { min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; padding: var(--space-12) 0 var(--space-8); }
 .badge {
   display: inline-flex; align-items: center; gap: 8px;
   font-size: 13px; color: var(--primary-2);
@@ -172,10 +176,21 @@ section.cta { padding: var(--space-12) 0; }
 footer { border-top: 1px solid var(--line); padding: var(--space-6) 0; color: var(--muted); font-size: 14px; }
 .foot-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); }
 
-/* ---- Touch play zone (mobile only; see js/touch-fx.js) ---- */
-.touchzone { display: none; }
+/* ---- Touch play zone (touch devices only; see js/touch-fx.js) ---- */
+.touchzone {
+  display: none; position: relative;
+  height: 46vh; min-height: 280px; overflow: hidden;
+  border-top: 1px solid var(--line);
+  background: radial-gradient(120% 100% at 50% 100%, rgba(139,92,246,0.12), transparent 70%);
+}
+.is-touch .touchzone { display: block; }   /* phones and tablets (Android/iOS/iPadOS) */
+#touch-fx {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  display: block; touch-action: pan-y;   /* keep vertical scroll, still react to touch */
+}
 .touch-hint {
-  position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(20px + env(safe-area-inset-bottom));
   font-family: var(--font-head); font-size: 12px; letter-spacing: 1.5px;
   text-transform: uppercase; color: var(--muted); pointer-events: none;
   transition: opacity .5s var(--ease-out);
@@ -190,18 +205,6 @@ footer { border-top: 1px solid var(--line); padding: var(--space-6) 0; color: va
   .card.lg, .card.sm, .card.md { grid-column: span 2; }
   .nav-links a:not(.btn) { display: none; }   /* keep language switcher + CTA visible */
   .stats { gap: var(--space-4); }
-
-  /* interactive touch field at the end of the page */
-  .touchzone {
-    display: block; position: relative;
-    height: 46vh; min-height: 280px; overflow: hidden;
-    border-top: 1px solid var(--line);
-    background: radial-gradient(120% 100% at 50% 100%, rgba(139,92,246,0.12), transparent 70%);
-  }
-  #touch-fx {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    display: block; touch-action: pan-y;   /* keep vertical scroll, still react to touch */
-  }
 }
 
 /* Respect reduced motion: kill decorative CSS animation + reveal offset */
