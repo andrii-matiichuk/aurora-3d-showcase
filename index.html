@@ -119,6 +119,12 @@
     </section>
   </main>
 
+  <!-- Mobile-only interactive touch field (see js/touch-fx.js) -->
+  <section class="touchzone" aria-hidden="true">
+    <canvas id="touch-fx"></canvas>
+    <span class="touch-hint" data-i18n="touch.hint">Touch to play</span>
+  </section>
+
   <footer>
     <div class="container foot-inner">
       <div data-i18n="footer.left">© AURORA — a 3D + motion demo</div>
@@ -155,7 +161,8 @@
     load('js/scene.js');
   }
 
-  load('js/ui.js');    // degrades gracefully when GSAP is absent
+  load('js/ui.js');       // degrades gracefully when GSAP is absent
+  load('js/touch-fx.js'); // mobile-only touch field, no dependencies
 })();
 </script>
 </body>

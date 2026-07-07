@@ -123,7 +123,7 @@
   // Orbit only when the press lands on the background/scene — never on text or
   // controls, so users can still select and copy any copy on the page.
   const NO_DRAG = 'a, button, input, textarea, select, label, .lang,' +
-    ' p, h1, h2, h3, h4, span, li, .tag, .lbl, .num, .badge, .brand, footer';
+    ' p, h1, h2, h3, h4, span, li, .tag, .lbl, .num, .badge, .brand, footer, .touchzone';
   window.addEventListener('pointerdown', (e) => {
     if (e.button !== undefined && e.button !== 0) return;   // primary button / touch only
     if (e.target.closest(NO_DRAG)) return;                  // let selection happen on text

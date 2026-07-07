@@ -36,6 +36,7 @@ window.Aurora = (function () {
       'ctaBand.primary': 'Create a project →',
       'ctaBand.ghost': 'Back to features',
       'footer.left': '© AURORA — a 3D + motion demo',
+      'touch.hint': 'Touch to play',
       'canvas.aria': 'Interactive 3D scene: a rotating crystal in a particle field. Click and drag to orbit the scene.'
     },
     uk: {
@@ -67,6 +68,7 @@ window.Aurora = (function () {
       'ctaBand.primary': 'Створити проєкт →',
       'ctaBand.ghost': 'Назад до можливостей',
       'footer.left': '© AURORA — демо у стилі 3D + анімації',
+      'touch.hint': 'Торкніться, щоб грати',
       'canvas.aria': 'Інтерактивна 3D-сцена: обертовий кристал у полі частинок. Затисніть і перетягніть, щоб обертати сцену.'
     },
     pl: {
@@ -98,6 +100,7 @@ window.Aurora = (function () {
       'ctaBand.primary': 'Utwórz projekt →',
       'ctaBand.ghost': 'Powrót do funkcji',
       'footer.left': '© AURORA — demo 3D + ruchu',
+      'touch.hint': 'Dotknij, aby pobawić',
       'canvas.aria': 'Interaktywna scena 3D: obracający się kryształ w polu cząstek. Kliknij i przeciągnij, aby obracać scenę.'
     }
   };

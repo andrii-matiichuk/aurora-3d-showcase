@@ -172,6 +172,15 @@ section.cta { padding: var(--space-12) 0; }
 footer { border-top: 1px solid var(--line); padding: var(--space-6) 0; color: var(--muted); font-size: 14px; }
 .foot-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); }
 
+/* ---- Touch play zone (mobile only; see js/touch-fx.js) ---- */
+.touchzone { display: none; }
+.touch-hint {
+  position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
+  font-family: var(--font-head); font-size: 12px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--muted); pointer-events: none;
+  transition: opacity .5s var(--ease-out);
+}
+
 /* reveal initial state (JS adds .in) */
 .reveal { opacity: 0; transform: translateY(24px); }
 .reveal.in { opacity: 1; transform: none; transition: opacity .6s var(--ease-out), transform .6s var(--ease-out); }
@@ -181,6 +190,18 @@ footer { border-top: 1px solid var(--line); padding: var(--space-6) 0; color: va
   .card.lg, .card.sm, .card.md { grid-column: span 2; }
   .nav-links a:not(.btn) { display: none; }   /* keep language switcher + CTA visible */
   .stats { gap: var(--space-4); }
+
+  /* interactive touch field at the end of the page */
+  .touchzone {
+    display: block; position: relative;
+    height: 46vh; min-height: 280px; overflow: hidden;
+    border-top: 1px solid var(--line);
+    background: radial-gradient(120% 100% at 50% 100%, rgba(139,92,246,0.12), transparent 70%);
+  }
+  #touch-fx {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    display: block; touch-action: pan-y;   /* keep vertical scroll, still react to touch */
+  }
 }
 
 /* Respect reduced motion: kill decorative CSS animation + reveal offset */

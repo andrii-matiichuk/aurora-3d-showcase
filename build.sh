@@ -13,6 +13,7 @@ npx --yes esbuild css/styles.css --minify --outfile=dist/styles.min.css
 npx --yes esbuild js/i18n.js  --minify --outfile=dist/js/i18n.js
 npx --yes esbuild js/scene.js --minify --outfile=dist/js/scene.js
 npx --yes esbuild js/ui.js    --minify --outfile=dist/js/ui.js
+npx --yes esbuild js/touch-fx.js --minify --outfile=dist/js/touch-fx.js
 
 # Build dist/index.html: inline the minified CSS (removes one render-blocking request)
 node -e '
