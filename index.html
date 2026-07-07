@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AURORA — Просторовий рушій дизайну</title>
+<meta name="description" content="Демо лендінг у стилі 3D + анімації: Three.js r128, GSAP ScrollTrigger, дизайн-система ui-ux-pro-max." />
+
+<!-- Fonts: Tech Startup pairing (ui-ux-pro-max/typography) — Space Grotesk + DM Sans -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+  /* ---- Semantic tokens (NFT/Web3 palette from ui-ux-pro-max/colors) ---- */
+  :root {
+    --bg:        #0F0F23;
+    --surface:   #1E1D35;
+    --surface-2: #27273B;
+    --line:      #2f2f4d;
+    --primary:   #8B5CF6;
+    --primary-2: #A78BFA;
+    --accent:    #FBBF24;
+    --text:      #F8FAFC;
+    --muted:     #94A3B8;
+
+    --space-1: 8px;  --space-2: 16px; --space-3: 24px;
+    --space-4: 32px; --space-6: 48px; --space-8: 64px; --space-12: 96px;
+    --radius: 18px;
+    --font-head: 'Space Grotesk', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ---- WebGL canvas: fixed, behind everything (alpha:true + CSS bg) ---- */
+  #scene {
+    position: fixed; inset: 0;
+    width: 100vw; height: 100dvh;
+    z-index: 0;
+    display: block;
+    cursor: grab;
+    touch-action: none;   /* let drag rotate instead of scrolling the background */
+  }
+  body.dragging, body.dragging * { cursor: grabbing !important; user-select: none; }
+  /* readable overlay gradient so text always meets 4.5:1 contrast */
+  .veil {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(15,15,35,0) 40%, rgba(15,15,35,0.55) 100%),
+      linear-gradient(180deg, rgba(15,15,35,0.35) 0%, rgba(15,15,35,0.15) 30%, rgba(15,15,35,0.75) 100%);
+  }
+
+  .wrap { position: relative; z-index: 2; }
+  .container { width: min(1120px, 92vw); margin-inline: auto; }
+
+  /* ---- Nav ---- */
+  header.nav {
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: blur(10px);
+    background: rgba(15,15,35,0.55);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-2) 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-head);
+    font-weight: 700; letter-spacing: 0.5px; font-size: 20px; }
+  .brand .dot { width: 14px; height: 14px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--primary-2), var(--primary));
+    box-shadow: 0 0 18px var(--primary); }
+  .nav-links { display: flex; gap: var(--space-3); align-items: center; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 15px;
+    transition: color .2s var(--ease-out); }
+  .nav-links a:hover { color: var(--text); }
+  .btn {
+    font-family: var(--font-head); font-weight: 600; font-size: 15px;
+    border: none; border-radius: 999px; cursor: pointer;
+    padding: 11px 22px; min-height: 44px;
+    transition: transform .25s var(--ease-out), box-shadow .25s var(--ease-out), background .25s var(--ease-out);
+    will-change: transform;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: #fff; box-shadow: 0 10px 30px rgba(139,92,246,0.35); }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(139,92,246,0.5); }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+  .btn-ghost:hover { transform: translateY(-3px); border-color: var(--primary-2); background: var(--surface); }
+  .btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  a.btn { text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+
+  /* ---- Hero ---- */
+  .hero { min-height: 100dvh; display: flex; align-items: center; padding: var(--space-12) 0 var(--space-8); }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--primary-2);
+    border: 1px solid var(--line); background: rgba(139,92,246,0.08);
+    padding: 7px 14px; border-radius: 999px; margin-bottom: var(--space-3);
+  }
+  .badge .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(251,191,36,0.6); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(251,191,36,0.55);} 70%{box-shadow:0 0 0 10px rgba(251,191,36,0);} 100%{box-shadow:0 0 0 0 rgba(251,191,36,0);} }
+
+  h1.title {
+    font-family: var(--font-head); font-weight: 700;
+    font-size: clamp(2.6rem, 7vw, 5rem); line-height: 1.05; letter-spacing: -1.5px;
+    margin: 0 0 var(--space-3);
+  }
+  h1.title .grad {
+    background: linear-gradient(120deg, var(--primary-2) 0%, var(--accent) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .subtitle { font-size: clamp(1.05rem, 2.2vw, 1.35rem); color: var(--muted);
+    max-width: 60ch; margin: 0 0 var(--space-5); }
+  .cta-row { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+  .stats { display: flex; gap: var(--space-6); flex-wrap: wrap; margin-top: var(--space-8);
+    padding-top: var(--space-5); border-top: 1px solid var(--line); }
+  .stat .num { font-family: var(--font-head); font-weight: 700; font-size: 2rem;
+    font-variant-numeric: tabular-nums; }
+  .stat .lbl { color: var(--muted); font-size: 14px; }
+
+  /* ---- Features (bento grid, scroll-reveal) ---- */
+  section.features { padding: var(--space-12) 0; }
+  .sec-head { max-width: 56ch; margin-bottom: var(--space-6); }
+  .sec-head h2 { font-family: var(--font-head); font-weight: 700;
+    font-size: clamp(1.8rem, 4vw, 2.8rem); letter-spacing: -0.5px; margin: 0 0 var(--space-2); }
+  .sec-head p { color: var(--muted); margin: 0; font-size: 1.05rem; }
+
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-2); }
+  .card {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--line); border-radius: var(--radius);
+    padding: var(--space-4); position: relative; overflow: hidden;
+    transition: transform .3s var(--ease-out), border-color .3s var(--ease-out), box-shadow .3s var(--ease-out);
+    will-change: transform;
+  }
+  .card:hover { transform: translateY(-6px); border-color: var(--primary); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+  .card::after { content:""; position:absolute; inset:0; border-radius: var(--radius); pointer-events:none;
+    background: radial-gradient(400px 200px at var(--mx,50%) var(--my,0%), rgba(139,92,246,0.14), transparent 70%);
+    opacity: 0; transition: opacity .3s var(--ease-out); }
+  .card:hover::after { opacity: 1; }
+  .card.lg { grid-column: span 4; }
+  .card.sm { grid-column: span 2; }
+  .card.md { grid-column: span 3; }
+  .ico { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center;
+    background: rgba(139,92,246,0.14); border: 1px solid var(--line); margin-bottom: var(--space-2); }
+  .ico svg { width: 24px; height: 24px; stroke: var(--primary-2); }
+  .card h3 { font-family: var(--font-head); font-weight: 600; font-size: 1.25rem; margin: 0 0 8px; }
+  .card p { color: var(--muted); margin: 0; font-size: 0.98rem; }
+  .tag { display:inline-block; margin-top: var(--space-2); font-size: 12px; color: var(--accent);
+    font-family: var(--font-head); letter-spacing: .5px; }
+
+  /* ---- CTA band ---- */
+  section.cta { padding: var(--space-12) 0; }
+  .cta-box {
+    text-align: center; border-radius: 28px; padding: var(--space-12) var(--space-4);
+    background: radial-gradient(120% 140% at 50% 0%, rgba(139,92,246,0.25), transparent 60%), var(--surface);
+    border: 1px solid var(--line);
+  }
+  .cta-box h2 { font-family: var(--font-head); font-weight: 700;
+    font-size: clamp(1.8rem, 4.5vw, 3rem); letter-spacing: -0.5px; margin: 0 0 var(--space-2); }
+  .cta-box p { color: var(--muted); max-width: 50ch; margin: 0 auto var(--space-4); }
+
+  footer { border-top: 1px solid var(--line); padding: var(--space-6) 0; color: var(--muted); font-size: 14px; }
+  .foot-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); }
+
+  /* reveal initial state (JS adds .in) */
+  .reveal { opacity: 0; transform: translateY(24px); }
+  .reveal.in { opacity: 1; transform: none; transition: opacity .6s var(--ease-out), transform .6s var(--ease-out); }
+
+  @media (max-width: 860px) {
+    .bento { grid-template-columns: repeat(2, 1fr); }
+    .card.lg, .card.sm, .card.md { grid-column: span 2; }
+    .nav-links a:not(.btn) { display: none; }
+    .stats { gap: var(--space-4); }
+  }
+
+  /* Respect reduced motion: kill decorative CSS animation + reveal offset */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 3D background -->
+<canvas id="scene" role="img" aria-label="Інтерактивна 3D-сцена: обертовий кристал у полі частинок. Затисніть і перетягніть, щоб обертати сцену."></canvas>
+<div class="veil"></div>
+
+<div class="wrap">
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand"><span class="dot"></span> AURORA</div>
+      <nav class="nav-links">
+        <a href="#features">Можливості</a>
+        <a href="#how">Як це працює</a>
+        <a class="btn btn-primary" href="#start" data-magnetic>Почати</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <main>
+    <section class="hero">
+      <div class="container">
+        <span class="badge reveal"><span class="pulse"></span> Three.js r128 · GSAP · ui-ux-pro-max</span>
+        <h1 class="title reveal">Дизайн, що<br><span class="grad">живе у просторі</span></h1>
+        <p class="subtitle reveal">AURORA — просторовий рушій, що поєднує WebGL-графіку, фізичні анімації та строгу дизайн-систему. Рух передає сенс, а не прикрашає.</p>
+        <div class="cta-row reveal">
+          <a class="btn btn-primary" href="#start" data-magnetic>Спробувати безкоштовно →</a>
+          <a class="btn btn-ghost" href="#features">Дивитись можливості</a>
+        </div>
+
+        <div class="stats reveal">
+          <div class="stat"><div class="num" data-count="60">0</div><div class="lbl">кадрів/с на сцені</div></div>
+          <div class="stat"><div class="num" data-count="2500">0</div><div class="lbl">частинок у полі</div></div>
+          <div class="stat"><div class="num" data-count="99">0</div><div class="lbl">UX-правил ураховано</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+      <div class="container">
+        <div class="sec-head reveal">
+          <h2>Побудовано на принципах, а не на прикрасах</h2>
+          <p>Кожна анімація триває 150–400 мс, працює лише через transform/opacity і поважає prefers-reduced-motion.</p>
+        </div>
+
+        <div class="bento">
+          <article class="card lg reveal" data-tilt>
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+            <h3>WebGL-рушій реального часу</h3>
+            <p>Один WebGLRenderer на всю сторінку, pixel ratio з обмеженням ×2, InstancedMesh для повторюваних об'єктів і delta-time через THREE.Clock — стабільні 60 fps навіть на середніх пристроях.</p>
+            <span class="tag">THREE.JS R128</span>
+          </article>
+
+          <article class="card sm reveal" data-tilt>
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z"/></svg></div>
+            <h3>Фізичні анімації</h3>
+            <p>Spring-криві та scrub-таймлайни GSAP замість лінійних переходів.</p>
+            <span class="tag">GSAP 3.12</span>
+          </article>
+
+          <article class="card sm reveal" data-tilt>
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+            <h3>Плавний паралакс</h3>
+            <p>Камера слідує за курсором через lerp — без ривків і дезорієнтації.</p>
+            <span class="tag">LERP α=0.05</span>
+          </article>
+
+          <article class="card md reveal" data-tilt>
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+            <h3>Доступність за замовчуванням</h3>
+            <p>Контраст тексту ≥4.5:1, aria-label на canvas, повна підтримка prefers-reduced-motion з реактивним слухачем зміни налаштувань ОС.</p>
+            <span class="tag">WCAG AA</span>
+          </article>
+
+          <article class="card md reveal" data-tilt>
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+            <h3>Дизайн-система в токенах</h3>
+            <p>Семантичні CSS-змінні, шкала відступів 8px, пара шрифтів Space Grotesk × DM Sans і палітра Web3 — усе з ui-ux-pro-max.</p>
+            <span class="tag">DESIGN TOKENS</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" id="start">
+      <div class="container">
+        <div class="cta-box reveal">
+          <h2>Готові рухати простір?</h2>
+          <p>Це демо зібране за рекомендаціями скіла ui-ux-pro-max — від вибору палітри до правил анімації. Відкрийте вихідний код і подивіться, як воно влаштоване.</p>
+          <div class="cta-row" style="justify-content:center">
+            <a class="btn btn-primary" href="#" data-magnetic>Створити проєкт →</a>
+            <a class="btn btn-ghost" href="#features">Назад до можливостей</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot-inner">
+      <div>© AURORA — демо у стилі 3D + анімації</div>
+      <div>Three.js r128 · GSAP · ui-ux-pro-max v2.6.2</div>
+    </div>
+  </footer>
+</div>
+
+<!-- Libraries: pinned versions per ui-ux-pro-max/threejs guidance -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<script>
+/* =====================================================================
+   3D SCENE — follows ui-ux-pro-max/data/stacks/threejs.csv rules:
+   single renderer · pixelRatio cap 2 · alpha canvas · ACES tone mapping
+   · Clock delta once/frame · InstancedMesh · Points particles · fog
+   · reduced-motion reactive · pointer lerp · ResizeObserver
+   ===================================================================== */
+(function () {
+  const canvas = document.getElementById('scene');
+  if (!window.THREE) { console.warn('Three.js not loaded'); return; }
+
+  // reduced-motion — reactive (rule: Accessibility/prefers-reduced-motion)
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let noMotion = mq.matches;
+  mq.addEventListener('change', e => { noMotion = e.matches; });
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0F0F23, 0.035);
+
+  const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  camera.position.set(0, 0, 9);
+  camera.lookAt(0, 0, 0);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));   // cap at 2
+  renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+  renderer.setClearColor(0x000000, 0);                            // CSS provides bg
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
+  // Lights: ambient fill + directional key + accent point (rule: Ambient+Directional min)
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const key = new THREE.DirectionalLight(0xffffff, 1.1);
+  key.position.set(5, 8, 6);
+  scene.add(key);
+  const rim = new THREE.PointLight(0xFBBF24, 0.9, 40);            // gold accent rim
+  rim.position.set(-6, -3, 4);
+  scene.add(rim);
+  const fill = new THREE.PointLight(0x8B5CF6, 1.1, 40);           // purple fill
+  fill.position.set(6, 2, -2);
+  scene.add(fill);
+
+  // ---- Hero crystal: icosahedron, PBR material (shared instances) ----
+  const heroGeo = new THREE.IcosahedronGeometry(2.1, 0);
+  const heroMat = new THREE.MeshStandardMaterial({
+    color: 0x8B5CF6, metalness: 0.65, roughness: 0.25, flatShading: true
+  });
+  const hero = new THREE.Mesh(heroGeo, heroMat);
+  scene.add(hero);
+
+  // wireframe overlay (shares geometry) for a "spatial" edge look
+  const wire = new THREE.LineSegments(
+    new THREE.WireframeGeometry(heroGeo),
+    new THREE.LineBasicMaterial({ color: 0xA78BFA, transparent: true, opacity: 0.35 })
+  );
+  scene.add(wire);
+
+  // ---- Orbiting shards: ONE InstancedMesh (rule: InstancedMesh 50+) ----
+  const SHARDS = 60;
+  const shardGeo = new THREE.OctahedronGeometry(0.16, 0);
+  const shardMat = new THREE.MeshStandardMaterial({ color: 0xFBBF24, metalness: 0.4, roughness: 0.4 });
+  const shards = new THREE.InstancedMesh(shardGeo, shardMat, SHARDS);
+  const dummy = new THREE.Object3D();
+  const shardData = [];
+  for (let i = 0; i < SHARDS; i++) {
+    const r = 3.2 + Math.random() * 2.8;
+    const a = Math.random() * Math.PI * 2;
+    const y = (Math.random() - 0.5) * 5;
+    shardData.push({ r, a, y, speed: 0.15 + Math.random() * 0.35, spin: Math.random() * Math.PI });
+    dummy.position.set(Math.cos(a) * r, y, Math.sin(a) * r);
+    dummy.updateMatrix();
+    shards.setMatrixAt(i, dummy.matrix);
+  }
+  shards.instanceMatrix.needsUpdate = true;
+  scene.add(shards);
+
+  // ---- Particle field: Points + BufferGeometry (rule: Points not Meshes) ----
+  const P = 2500;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(P * 3);
+  for (let i = 0; i < P * 3; i++) pPos[i] = (Math.random() - 0.5) * 34;
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({
+    size: 0.045, color: 0xA78BFA, transparent: true, opacity: 0.7, depthWrite: false
+  }));
+  scene.add(particles);
+
+  // ---- Drag-to-orbit (rule: Custom Drag Orbit Fallback — spherical coords) ----
+  // Grab with the pointer/finger held down and drag to rotate the whole scene.
+  let R = camera.position.length();     // orbit radius (also tweened in intro)
+  let theta = 0;                        // azimuth  (horizontal drag)
+  let phi   = Math.PI / 2;              // polar    (vertical drag), start at equator
+  let dragging = false;
+  let prev = { x: 0, y: 0 };
+  let vTheta = 0, vPhi = 0;             // release velocity → inertia
+  const IDLE_SPIN = 0.05;              // gentle auto-rotate when idle
+
+  function applyCamera() {
+    phi = Math.max(0.2, Math.min(Math.PI - 0.2, phi));   // clamp so it never flips
+    camera.position.set(
+      R * Math.sin(phi) * Math.sin(theta),
+      R * Math.cos(phi),
+      R * Math.sin(phi) * Math.cos(theta)
+    );
+    camera.lookAt(0, 0, 0);
+  }
+
+  function dragStart(x, y) { dragging = true; prev.x = x; prev.y = y; vTheta = 0; vPhi = 0; document.body.classList.add('dragging'); }
+  function dragMove(x, y) {
+    if (!dragging) return;
+    const dx = (x - prev.x) * 0.006;
+    const dy = (y - prev.y) * 0.006;
+    theta -= dx; phi -= dy;             // rotate BOTH axes (spherical) — key rule
+    vTheta = -dx; vPhi = -dy;           // remember last delta for inertia
+    prev.x = x; prev.y = y;
+  }
+  function dragEnd() { dragging = false; document.body.classList.remove('dragging'); }
+
+  // Start a drag anywhere on the background, but not on real controls (links/buttons)
+  window.addEventListener('pointerdown', e => {
+    if (e.target.closest('a, button, [data-magnetic], input, .nav-links, .brand')) return;
+    dragStart(e.clientX, e.clientY);
+  });
+  window.addEventListener('pointermove', e => dragMove(e.clientX, e.clientY));
+  window.addEventListener('pointerup', dragEnd);
+  window.addEventListener('pointercancel', dragEnd);
+
+  // ---- Resize: ResizeObserver on canvas (rule: canvas dims, not window) ----
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (w === 0 || h === 0) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
+  else window.addEventListener('resize', resize);
+  resize();
+
+  // ---- Render loop: setAnimationLoop + Clock.getDelta ONCE (rule) ----
+  const clock = new THREE.Clock();
+  function animate() {
+    const dt = clock.getDelta();              // called ONCE per frame
+    const t = clock.getElapsedTime();
+
+    if (!noMotion) {
+      hero.rotation.y += dt * 0.35;
+      hero.rotation.x += dt * 0.12;
+      wire.rotation.copy(hero.rotation);
+      particles.rotation.y += dt * 0.02;
+
+      // orbit shards
+      for (let i = 0; i < SHARDS; i++) {
+        const s = shardData[i];
+        s.a += dt * s.speed;
+        dummy.position.set(Math.cos(s.a) * s.r, s.y + Math.sin(t * 0.5 + i) * 0.15, Math.sin(s.a) * s.r);
+        dummy.rotation.set(t * s.speed, t * s.speed + s.spin, 0);
+        dummy.updateMatrix();
+        shards.setMatrixAt(i, dummy.matrix);
+      }
+      shards.instanceMatrix.needsUpdate = true;
+    }
+
+    // camera: drag orbit, with inertia + gentle idle auto-rotate
+    if (!dragging) {
+      theta += vTheta;                 // coast on release velocity
+      phi   += vPhi;
+      vTheta *= 0.93;                  // friction
+      vPhi   *= 0.93;
+      if (!noMotion) theta += IDLE_SPIN * dt;   // slow self-rotation when idle
+    }
+    applyCamera();
+
+    renderer.render(scene, camera);
+  }
+  renderer.setAnimationLoop(animate);
+
+  // Pause when tab hidden (rule: Pause on tab hidden)
+  document.addEventListener('visibilitychange', () => {
+    renderer.setAnimationLoop(document.hidden ? null : animate);
+  });
+
+  // Intro: camera pulls in (tween R, since orbit sets position each frame)
+  if (!noMotion && window.gsap) {
+    const baseR = R;                 // resting radius (9)
+    const intro = { r: baseR + 8 };  // start further out
+    R = intro.r;
+    gsap.to(intro, { r: baseR, duration: 1.6, ease: 'power3.out',
+      onUpdate: () => { R = intro.r; } });
+    gsap.from([hero.scale], { x: 0.2, y: 0.2, z: 0.2, duration: 1.4, ease: 'back.out(1.4)' });
+  }
+})();
+
+/* =====================================================================
+   DOM ANIMATIONS — GSAP ScrollTrigger reveal + magnetic buttons + tilt
+   Rules: 150-400ms · ease-out enter · stagger 30-80ms · reduced-motion
+   ===================================================================== */
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Reveal on scroll (fallback: IntersectionObserver if GSAP missing)
+  const reveals = document.querySelectorAll('.reveal');
+  if (reduce) {
+    reveals.forEach(el => el.classList.add('in'));
+  } else if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    // hero group: quick stagger on load
+    gsap.utils.toArray('.hero .reveal').forEach((el, i) => {
+      gsap.to(el, { opacity: 1, y: 0, duration: 0.6, delay: 0.15 + i * 0.07, ease: 'power2.out',
+        onStart: () => el.classList.add('in') });
+    });
+    // scroll sections
+    gsap.utils.toArray('.reveal:not(.hero .reveal)').forEach(el => {
+      ScrollTrigger.create({
+        trigger: el, start: 'top 88%', once: true,
+        onEnter: () => el.classList.add('in')
+      });
+    });
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => io.observe(el));
+  }
+
+  // Count-up stats
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = +el.dataset.count;
+    if (reduce || !window.gsap) { el.textContent = target.toLocaleString('uk'); return; }
+    const obj = { v: 0 };
+    ScrollTrigger.create({
+      trigger: el, start: 'top 92%', once: true,
+      onEnter: () => gsap.to(obj, { v: target, duration: 1.4, ease: 'power2.out',
+        onUpdate: () => { el.textContent = Math.round(obj.v).toLocaleString('uk'); } })
+    });
+  });
+
+  if (reduce) return;
+
+  // Magnetic buttons (rule: Complex hover — clamp pull, 1-2 focal elements)
+  document.querySelectorAll('[data-magnetic]').forEach(el => {
+    const xTo = gsap.quickTo(el, 'x', { duration: 0.4, ease: 'elastic.out(1,0.4)' });
+    const yTo = gsap.quickTo(el, 'y', { duration: 0.4, ease: 'elastic.out(1,0.4)' });
+    el.addEventListener('pointermove', e => {
+      const r = el.getBoundingClientRect();
+      xTo((e.clientX - r.left - r.width / 2) * 0.35);
+      yTo((e.clientY - r.top - r.height / 2) * 0.35);
+    });
+    el.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
+  });
+
+  // Card spotlight follow (updates CSS vars only — cheap)
+  document.querySelectorAll('[data-tilt]').forEach(card => {
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+})();
+</script>
+</body>
+</html>
