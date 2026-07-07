@@ -221,7 +221,7 @@
         <div class="lang" role="group" aria-label="Select language">
           <button type="button" data-lang="en" aria-pressed="true">EN</button>
           <button type="button" data-lang="uk" aria-pressed="false">UK</button>
-          <button type="button" data-lang="es" aria-pressed="false">ES</button>
+          <button type="button" data-lang="pl" aria-pressed="false">PL</button>
         </div>
         <a class="btn btn-primary" href="#start" data-magnetic data-i18n="nav.start">Get started</a>
       </nav>
@@ -393,39 +393,39 @@ window.Aurora = (function () {
       'footer.left': '© AURORA — демо у стилі 3D + анімації',
       'canvas.aria': 'Інтерактивна 3D-сцена: обертовий кристал у полі частинок. Затисніть і перетягніть, щоб обертати сцену.'
     },
-    es: {
-      'nav.features': 'Funciones',
-      'nav.how': 'Cómo funciona',
-      'nav.start': 'Empezar',
-      'hero.title1': 'Diseño que',
-      'hero.title2': 'vive en el espacio',
-      'hero.subtitle': 'AURORA es un motor espacial que combina gráficos WebGL, movimiento basado en física y un sistema de diseño estricto. El movimiento transmite significado — nunca solo decora.',
-      'hero.ctaPrimary': 'Pruébalo gratis →',
-      'hero.ctaGhost': 'Ver funciones',
-      'stat.fps': 'fotogramas por segundo',
-      'stat.particles': 'partículas en el campo',
-      'stat.rules': 'reglas de UX aplicadas',
-      'feat.head': 'Construido sobre principios, no decoración',
-      'feat.sub': 'Cada animación dura 150–400 ms, usa solo transform/opacity y respeta prefers-reduced-motion.',
-      'card1.h': 'Motor WebGL en tiempo real',
-      'card1.p': 'Un solo WebGLRenderer por página, pixel ratio limitado a ×2, InstancedMesh para objetos repetidos y delta-time con THREE.Clock — 60 fps estables incluso en dispositivos de gama media.',
-      'card2.h': 'Movimiento basado en física',
-      'card2.p': 'Curvas de resorte y líneas de tiempo con scrub de GSAP en lugar de transiciones lineales.',
-      'card3.h': 'Control de órbita suave',
-      'card3.p': 'Haz clic y arrastra para rotar la escena en coordenadas esféricas, con inercia al soltar.',
-      'card4.h': 'Accesible por defecto',
-      'card4.p': 'Contraste de texto ≥4.5:1, un aria-label en el canvas y soporte completo de prefers-reduced-motion con un listener reactivo a los cambios del sistema.',
-      'card5.h': 'Sistema de diseño en tokens',
-      'card5.p': 'Variables CSS semánticas, una escala de espaciado de 8px, la combinación Space Grotesk × DM Sans y una paleta Web3 — todo de ui-ux-pro-max.',
-      'ctaBand.h': '¿Listo para mover el espacio?',
-      'ctaBand.p': 'Esta demo está construida sobre las recomendaciones de ui-ux-pro-max — desde la elección de la paleta hasta las reglas de movimiento. Abre el código fuente y mira cómo funciona.',
-      'ctaBand.primary': 'Crear un proyecto →',
-      'ctaBand.ghost': 'Volver a funciones',
-      'footer.left': '© AURORA — una demo de 3D + movimiento',
-      'canvas.aria': 'Escena 3D interactiva: un cristal giratorio en un campo de partículas. Haz clic y arrastra para orbitar la escena.'
+    pl: {
+      'nav.features': 'Funkcje',
+      'nav.how': 'Jak to działa',
+      'nav.start': 'Zacznij',
+      'hero.title1': 'Projekt, który',
+      'hero.title2': 'żyje w przestrzeni',
+      'hero.subtitle': 'AURORA to przestrzenny silnik łączący grafikę WebGL, ruch oparty na fizyce i rygorystyczny system projektowy. Ruch niesie znaczenie — nigdy nie jest tylko dekoracją.',
+      'hero.ctaPrimary': 'Wypróbuj za darmo →',
+      'hero.ctaGhost': 'Zobacz funkcje',
+      'stat.fps': 'klatek na sekundę',
+      'stat.particles': 'cząstek w polu',
+      'stat.rules': 'zastosowanych reguł UX',
+      'feat.head': 'Zbudowane na zasadach, nie na dekoracji',
+      'feat.sub': 'Każda animacja trwa 150–400 ms, używa tylko transform/opacity i respektuje prefers-reduced-motion.',
+      'card1.h': 'Silnik WebGL w czasie rzeczywistym',
+      'card1.p': 'Jeden WebGLRenderer na stronę, pixel ratio ograniczony do ×2, InstancedMesh dla powtarzalnych obiektów i delta-time przez THREE.Clock — stabilne 60 fps nawet na urządzeniach średniej klasy.',
+      'card2.h': 'Ruch oparty na fizyce',
+      'card2.p': 'Krzywe sprężynowe i osie czasu ze scrubem GSAP zamiast liniowych przejść.',
+      'card3.h': 'Płynne sterowanie orbitą',
+      'card3.p': 'Kliknij i przeciągnij, aby obracać scenę we współrzędnych sferycznych, z bezwładnością po puszczeniu.',
+      'card4.h': 'Dostępne domyślnie',
+      'card4.p': 'Kontrast tekstu ≥4.5:1, aria-label na kanwie i pełne wsparcie prefers-reduced-motion z reaktywnym nasłuchiwaniem zmian ustawień systemu.',
+      'card5.h': 'System projektowy w tokenach',
+      'card5.p': 'Semantyczne zmienne CSS, skala odstępów 8px, para czcionek Space Grotesk × DM Sans i paleta Web3 — wszystko z ui-ux-pro-max.',
+      'ctaBand.h': 'Gotowy, by poruszyć przestrzeń?',
+      'ctaBand.p': 'To demo powstało na podstawie rekomendacji ui-ux-pro-max — od wyboru palety po reguły ruchu. Otwórz kod źródłowy i zobacz, jak działa.',
+      'ctaBand.primary': 'Utwórz projekt →',
+      'ctaBand.ghost': 'Powrót do funkcji',
+      'footer.left': '© AURORA — demo 3D + ruchu',
+      'canvas.aria': 'Interaktywna scena 3D: obracający się kryształ w polu cząstek. Kliknij i przeciągnij, aby obracać scenę.'
     }
   };
-  const LOCALES = { en: 'en-US', uk: 'uk-UA', es: 'es-ES' };
+  const LOCALES = { en: 'en-US', uk: 'uk-UA', pl: 'pl-PL' };
   const STORE_KEY = 'aurora-lang';
   let lang = 'en';
 
