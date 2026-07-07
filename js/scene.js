@@ -192,10 +192,27 @@
   }
   renderer.setAnimationLoop(animate);
 
-  // Pause when tab hidden (rule: Pause on tab hidden)
+  // Render-loop controller: pause on a hidden tab, and — on phones/tablets —
+  // pin the scene while scrolling. Stopping the loop leaves the last frame on
+  // the fixed canvas, so the background holds perfectly still (no jitter);
+  // it resumes just after scrolling stops. clock.getDelta() flushes the paused
+  // time gap so rotation doesn't jump on resume.
+  let running = true;
+  function pauseLoop() { if (running) { renderer.setAnimationLoop(null); running = false; } }
+  function resumeLoop() {
+    if (!running && !document.hidden) { clock.getDelta(); renderer.setAnimationLoop(animate); running = true; }
+  }
   document.addEventListener('visibilitychange', () => {
-    renderer.setAnimationLoop(document.hidden ? null : animate);
+    if (document.hidden) pauseLoop(); else resumeLoop();
   });
+  if (touchDevice) {
+    let scrollTimer = null;
+    window.addEventListener('scroll', () => {
+      pauseLoop();
+      if (scrollTimer) clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(resumeLoop, 180);
+    }, { passive: true });
+  }
 
   // Intro: camera pulls in (tween R, since orbit sets position each frame)
   if (!noMotion && window.gsap) {
